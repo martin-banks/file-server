@@ -10,6 +10,8 @@ const dir = path.join(__dirname, '../../')
 const excludeFiles = [
 // any file beginning with a full-point will be excluded
 	'node_modules',
+	'yarn.lock',
+	'package-lock.json',
 ]
 
 // const testPug = pug.compileFile('./src/test.pug')
@@ -31,8 +33,12 @@ app.use(sassMiddleware({
 app.use('/public', express.static(path.join(__dirname, '/public')))
 
 
+function removeDoubleSlash(stringArr) {
+	return stringArr.join('').replace(/\/+/g, '/')
+}
 app.get('/*', (req, res) => {
 	// console.log(Object.keys(req), req.url, req.params)
+	const { hostname, originalUrl } = req
 	if (req.url.indexOf('.') === -1) {
 		fs.readdir(path.join(dir, req.originalUrl), (err, data) => {
 			if (err) {
@@ -42,13 +48,34 @@ app.get('/*', (req, res) => {
 			}
 			const formatted = data
 				.filter(d => d[0] !== '.')
-				.map(d => ({
-					text: d,
-					link: `http://${req.hostname}:3000${req.originalUrl.replace(/\/+/g, '/')}/${d}`}))
+				.filter(d => excludeFiles.indexOf(d) === -1)
+				.reduce((output, current) => {
+					let update = output
+					const entry = {
+						text: current,
+						link: `http://${removeDoubleSlash([hostname, ':3000', originalUrl, '/', current])}`
+					}
+					if (current.indexOf('.') === -1) {
+						update.folders.push(entry)
+					} else {
+						update.files.push(entry)
+					}
+					return update
+				}, {files: [],folders: []})
+
+			const breadcrumb = req.url
+				.split('/')
+				.reduce((output, current) => {
+					if (current === '') return output
+					let update = output
+					update.push(`${output.slice(-1)[0] || ''}/${current}`)
+					return update
+				}, [''])
 
 			res.render('test', {
-				header: `Files for ${req.originalUrl}`,
-				files: formatted,
+				header: `${req.url}`,
+				breadcrumb,
+				data: formatted,
 				style: path.join(__dirname, 'public'),
 			})
 		})
@@ -58,6 +85,7 @@ app.get('/*', (req, res) => {
 	}
 })
 
+
 app.listen(3000, () => {
-	console.log('App listening on port 3000!', path.join(dir, '/file-server/src/sass'))
+	console.log('App listening on port 3000!')
 })

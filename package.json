@@ -22,6 +22,5 @@
     "node-sass-middleware": "^0.11.0",
     "pug": "^2.0.0-rc.2"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

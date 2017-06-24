@@ -4,12 +4,41 @@ mixin list(...items)
 			li
 				a(href=item.link)= item.text
 
+mixin files(...files)
+	section.files
+		h2 Files
+		div.wrapper
+			each file in files
+				a(href=file.link).file
+					div.icon
+						p.extension #{file.text.split('.')[1]}
+					span #{file.text.split('.')[0]}
+
+
+mixin folders(...folders)
+	section.folders
+		h2 Folders
+		div.wrapper
+			each folder in folders
+				a(href=folder.link).folder
+					div.icon
+					span #{folder.text}
+
+mixin breadcrumbs(breadcrumb)
+	h3.breadcrumbs
+		each crumb in breadcrumb
+			a(href=crumb || '/')= (crumb.split('/').slice(-1)[0] || 'root') + ' / ' 
+
 
 html
 	head
-		title file server
-		link(rel="stylesheet", href="/public/test.css")
+		h6 
+			span Current directory
+		title #{header}
 		link(rel="stylesheet", href="/public/style.css")
+		link(href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900", rel="stylesheet")
 	body
-		h1 #{header}
-		+list(...files)
+		+breadcrumbs(breadcrumb)
+		section.contentContainer
+			+folders(...data.folders)
+			+files(...data.files)
