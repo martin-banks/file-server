@@ -8,6 +8,8 @@ mixin list(...items)
 html
 	head
 		title file server
+		link(rel="stylesheet", href="/public/test.css")
+		link(rel="stylesheet", href="/public/style.css")
 	body
 		h1 #{header}
 		+list(...files)

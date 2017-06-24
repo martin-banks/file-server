@@ -18,9 +18,10 @@
   },
   "homepage": "https://github.com/martin-banks/file-server#readme",
   "dependencies": {
-    "express": "^4.15.3"
+    "express": "^4.15.3",
+    "node-sass-middleware": "^0.11.0",
+    "pug": "^2.0.0-rc.2"
   },
   "devDependencies": {
-    "pug": "^2.0.0-rc.2"
   }
 }
