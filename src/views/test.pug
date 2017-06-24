@@ -1,0 +1,13 @@
+mixin list(...items)
+	ul
+		each item in items
+			li
+				a(href=item.link)= item.text
+
+
+html
+	head
+		title file server
+	body
+		h1 #{header}
+		+list(...files)
