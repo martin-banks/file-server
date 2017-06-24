@@ -4,9 +4,16 @@ const sassMiddleware = require('node-sass-middleware')
 const app = express()
 const fs = require('fs')
 const path = require('path')
+
+// We are using Express render engine so no need to call pug separately
 // const pug = require('pug')
 
+// Test path pointing up to main porject directory
+// Should capture this dynamically
 const dir = path.join(__dirname, '../../')
+const port = 3000
+// Hidden files (beginning with a full point) are ignored by default, 
+// Other files we do not need to see are listed here
 const excludeFiles = [
 // any file beginning with a full-point will be excluded
 	'node_modules',
@@ -14,12 +21,16 @@ const excludeFiles = [
 	'package-lock.json',
 ]
 
-// const testPug = pug.compileFile('./src/test.pug')
-// console.log(testPug({name: 'bob'}))
+// Helper file to remove multiple forward slash
+function removeDoubleSlash(stringArr) {
+	return stringArr.replace(/\/+/g, '/')
+}
 
 app.set('view engine', 'pug')
 app.set('views', './src/views')
 
+// Middleware used for all requests
+// This compiles sass to the css in the public directory
 app.use(sassMiddleware({
 	src: path.join(dir, '/file-server/src/sass'),
 	dest: path.join(dir, '/file-server/src/public'),
@@ -29,15 +40,11 @@ app.use(sassMiddleware({
 	prefix: '/public',
 }))
 
-
+// Static file hostings
+// This is where our static files; css images etc will be hosted from
 app.use('/public', express.static(path.join(__dirname, '/public')))
 
-
-function removeDoubleSlash(stringArr) {
-	return stringArr.join('').replace(/\/+/g, '/')
-}
 app.get('/*', (req, res) => {
-	// console.log(Object.keys(req), req.url, req.params)
 	const { hostname, originalUrl } = req
 	if (req.url.indexOf('.') === -1) {
 		fs.readdir(path.join(dir, req.originalUrl), (err, data) => {
@@ -50,10 +57,10 @@ app.get('/*', (req, res) => {
 				.filter(d => d[0] !== '.')
 				.filter(d => excludeFiles.indexOf(d) === -1)
 				.reduce((output, current) => {
-					let update = output
+					const update = output
 					const entry = {
 						text: current,
-						link: `http://${removeDoubleSlash([hostname, ':3000', originalUrl, '/', current])}`
+						link: `http://${removeDoubleSlash(`${hostname}:3000${originalUrl}/${current}`)}`
 					}
 					if (current.indexOf('.') === -1) {
 						update.folders.push(entry)
@@ -61,17 +68,22 @@ app.get('/*', (req, res) => {
 						update.files.push(entry)
 					}
 					return update
-				}, {files: [],folders: []})
+				}, { files: [], folders: [] })
 
+			// For the breadcrumb links, I want to have the full path
+			// from the initial host location. Use reduce to create
+			// an array of links each building on the previous
 			const breadcrumb = req.url
 				.split('/')
 				.reduce((output, current) => {
 					if (current === '') return output
-					let update = output
+					const update = output
+					// .slice(-1)[0] is used to get the last item in an array
 					update.push(`${output.slice(-1)[0] || ''}/${current}`)
 					return update
 				}, [''])
 
+			// render used in place of send when working with templates
 			res.render('test', {
 				header: `${req.url}`,
 				breadcrumb,
@@ -80,12 +92,16 @@ app.get('/*', (req, res) => {
 			})
 		})
 	} else {
+		// If the newest request has a full point in it
+		// we assume it is a file and try to send it
+		// 
 		const file = path.join(dir, req.url)
 		res.sendFile(file)
 	}
 })
 
 
-app.listen(3000, () => {
-	console.log('App listening on port 3000!')
+// Start the server!!
+app.listen(port, () => {
+	console.log(`App listening on port ${port}!`)
 })
