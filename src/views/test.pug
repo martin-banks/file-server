@@ -10,10 +10,9 @@ mixin files(...files)
 		div.wrapper
 			each file in files
 				a(href=file.link).file
-					div.icon
-						p.extension #{file.text.split('.')[1]}
+					div(class=file.text.split('.')[1]).icon
+						div.extension #{file.text.split('.').slice(-1)[0]}
 					span #{file.text.split('.')[0]}
-
 
 mixin folders(...folders)
 	section.folders
@@ -36,7 +35,7 @@ html
 			span Current directory
 		title #{header}
 		link(rel="stylesheet", href="/public/style.css")
-		link(href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900", rel="stylesheet")
+		link(href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:300,400,500,700,900", rel="stylesheet")
 	body
 		+breadcrumbs(breadcrumb)
 		section.contentContainer

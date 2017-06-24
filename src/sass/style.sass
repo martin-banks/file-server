@@ -66,7 +66,7 @@ h6
 	flex-wrap: wrap
 
 
-.file, .folder
+.folder
 	transition: all 300ms
 	&:hover
 		background: white
@@ -74,7 +74,7 @@ h6
 		box-shadow: 4px 6px 24px -4px rgba(0,0,0,1) 
 
 .file
-	flex: 1
+	// flex: 1
 	min-width: 100px
 	max-width: 150px
 	text-align: center
@@ -92,20 +92,41 @@ h6
 
 .file
 	div.icon
+		transition: all 300ms
 		position: relative
 		width: 100px
-		height: 100px
-		background: none
+		height: 120px
+		background: #ececec
 		border: solid 1px #ccc
 		border-radius: 8px
 		display: block
-		flex: 0
 		margin: 0 auto
 		margin-bottom: 16px
+		overflow: hidden
+	span
+		font-size: 12px
+	&:hover
+		.icon
+			background: white
+			transform: translate3d(0, -8px, 0) scale(1.05)
+			box-shadow: 4px 6px 24px -4px rgba(0,0,0,1) 
 
-p.extension
+
+.extension
+	font-family: 'Roboto Condensed'
 	position: relative
-	color: white
+	top: 100%
+	right: 0
+	width: 100%
+	transform: translate3d(0%, -100%, 0)
+	// box-shadow: -4px 4px 0 0 rgba(50, 0, 0, 0.4)
+	// background: darkred 
+	color: #ccc
 	bottom: 0
 	margin: 0
 	padding: 0
+	padding: 8px 8px
+	font-size: 24px
+	text-align: left
+
+
