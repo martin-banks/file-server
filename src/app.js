@@ -6,7 +6,11 @@ const fs = require('fs')
 const path = require('path')
 // const pug = require('pug')
 
-const dir = path.join(__dirname, '../../')
+function getUserHome() {
+  return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+}
+// const dir = path.join(__dirname, '../../')
+const dir = getUserHome()
 const excludeFiles = [
 // any file beginning with a full-point will be excluded
 	'node_modules',
@@ -39,8 +43,9 @@ function removeDoubleSlash(stringArr) {
 app.get('/*', (req, res) => {
 	// console.log(Object.keys(req), req.url, req.params)
 	const { hostname, originalUrl } = req
-	if (req.url.indexOf('.') === -1) {
-		fs.readdir(path.join(dir, req.originalUrl), (err, data) => {
+	const url = (req.url).replace(/%20/g, ' ')
+	if (url.indexOf('.') === -1) {
+		fs.readdir(path.join(dir, (originalUrl).replace(/%20/g, ' ')), (err, data) => {
 			if (err) {
 				console.error(err)
 				res.send(err)
@@ -53,7 +58,7 @@ app.get('/*', (req, res) => {
 					let update = output
 					const entry = {
 						text: current,
-						link: `http://${removeDoubleSlash([hostname, ':3000', originalUrl, '/', current])}`
+						link: `http://${removeDoubleSlash([hostname, ':3000', (originalUrl).replace(/%20/g, ' '), '/', current])}`
 					}
 					if (current.indexOf('.') === -1) {
 						update.folders.push(entry)
@@ -63,7 +68,7 @@ app.get('/*', (req, res) => {
 					return update
 				}, {files: [],folders: []})
 
-			const breadcrumb = req.url
+			const breadcrumb = url
 				.split('/')
 				.reduce((output, current) => {
 					if (current === '') return output
@@ -73,14 +78,14 @@ app.get('/*', (req, res) => {
 				}, [''])
 
 			res.render('test', {
-				header: `${req.url}`,
+				header: `${url}`,
 				breadcrumb,
 				data: formatted,
 				style: path.join(__dirname, 'public'),
 			})
 		})
 	} else {
-		const file = path.join(dir, req.url)
+		const file = path.join(dir, url)
 		res.sendFile(file)
 	}
 })

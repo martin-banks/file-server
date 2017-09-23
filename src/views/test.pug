@@ -26,7 +26,7 @@ mixin folders(...folders)
 mixin breadcrumbs(breadcrumb)
 	h3.breadcrumbs
 		each crumb in breadcrumb
-			a(href=crumb || '/')= (crumb.split('/').slice(-1)[0] || 'root') + ' / ' 
+			a(href=crumb || '/')= (crumb.split('/').slice(-1)[0] || 'home') + ' / ' 
 
 
 html
