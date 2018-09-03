@@ -1,43 +1,46 @@
 mixin list(...items)
-	ul
-		each item in items
-			li
-				a(href=item.link)= item.text
+  ul
+    each item in items
+      li
+        a(href=item.link)= item.text
 
 mixin files(...files)
-	section.files
-		h2 Files
-		div.wrapper
-			each file in files
-				a(href=file.link).file
-					div(class=file.text.split('.')[1]).icon
-						div.extension #{file.text.split('.').slice(-1)[0]}
-					span #{file.text.split('.')[0]}
+  section.files
+    h2 Files
+    div.wrapper
+      each file in files
+        a(href=file.link).file
+          if (file.text.split('.')[1] === 'jpg')
+            img(class="preview__image" src=file.link, alt="oops")
+          else
+            div(class=file.text.split('.')[1]).icon
+              div.extension #{file.text.split('.').slice(-1)[0]}
+          span #{file.text.split('.')[0]}
 
 mixin folders(...folders)
-	section.folders
-		h2 Folders
-		div.wrapper
-			each folder in folders
-				a(href=folder.link).folder
-					div.icon
-					span #{folder.text}
+  section.folders
+    h2 Folders
+    div.wrapper
+      each folder in folders
+        a(href=folder.link).folder
+          div.icon
+          span #{folder.text}
 
 mixin breadcrumbs(breadcrumb)
-	h3.breadcrumbs
-		each crumb in breadcrumb
-			a(href=crumb || '/')= (crumb.split('/').slice(-1)[0] || 'root') + ' / ' 
+  h3.breadcrumbs
+    each crumb in breadcrumb
+      a(href=crumb || '/')= (crumb.split('/').slice(-1)[0] || 'root') + ' / ' 
 
 
 html
-	head
-		h6 
-			span Current directory
-		title #{header}
-		link(rel="stylesheet", href="/public/style.css")
-		link(href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:300,400,500,700,900", rel="stylesheet")
-	body
-		+breadcrumbs(breadcrumb)
-		section.contentContainer
-			+folders(...data.folders)
-			+files(...data.files)
+  head
+    h6 
+      span Current directory
+    title #{header}
+    link(rel="stylesheet", href="/public/style.css")
+    link(href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:300,400,500,700,900", rel="stylesheet")
+  body
+    +breadcrumbs(breadcrumb)
+    section.contentContainer
+      +folders(...data.folders)
+      +files(...data.files)
