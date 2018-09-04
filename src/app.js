@@ -10,6 +10,7 @@ const path = require('path')
 
 // Test path pointing up to main porject directory
 // Should capture this dynamically
+const cwd = process.cwd()
 const dir = path.join(__dirname, '../../')
 const port = 3000
 // Hidden files (beginning with a full point) are ignored by default, 
@@ -28,13 +29,15 @@ function removeDoubleSlash(stringArr) {
 }
 
 app.set('view engine', 'pug')
-app.set('views', './src/views')
-
+app.set('views', path.join(__dirname, 'views'))
+console.log(__dirname)
 // Middleware used for all requests
 // This compiles sass to the css in the public directory
 app.use(sassMiddleware({
-  src: path.join(dir, '/file-server/src/sass'),
-  dest: path.join(dir, '/file-server/src/public'),
+  // src: path.join(dir, '/file-server/src/sass'),
+  src: path.join(__dirname, 'src/sass'),
+  // dest: path.join(dir, '/file-server/src/public'),
+  dest: path.join(__dirname, 'src/public'),
   debug: true,
   indentedSyntax: true,
   outputStyle: 'compressed',
@@ -49,7 +52,8 @@ app.get('/*', (req, res) => {
   const { hostname, originalUrl } = req
   const url = (req.url).replace(/%20/g, ' ')
   if (url.indexOf('.') === -1) {
-    fs.readdir(path.join(dir, (originalUrl).replace(/%20/g, ' ')), (err, data) => {
+    console.log({ originalUrl })
+    fs.readdir(path.join(cwd, (originalUrl).replace(/%20/g, ' ')), (err, data) => {
       if (err) {
         console.error(err)
         res.send(err)
@@ -60,11 +64,10 @@ app.get('/*', (req, res) => {
         .filter(d => excludeFiles.indexOf(d) === -1)
         .reduce((output, current) => {
           const update = output
+          console.log('in files', { originalUrl })
           const entry = {
             text: current,
-
             // link: `http://${removeDoubleSlash([hostname, ':3000', (originalUrl).replace(/%20/g, ' '), '/', current])}`
-
             link: `http://${removeDoubleSlash(`${hostname}:3000${originalUrl}/${current}`)}`
 
           }
@@ -105,7 +108,7 @@ app.get('/*', (req, res) => {
     // If the newest request has a full point in it
     // we assume it is a file and try to send it
     // 
-    const file = path.join(dir, req.url)
+    const file = path.join(cwd, req.url)
     res.sendFile(file)
   }
 })
