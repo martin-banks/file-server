@@ -12,7 +12,7 @@ const path = require('path')
 // Should capture this dynamically
 const cwd = process.cwd()
 const dir = path.join(__dirname, '../../')
-const port = 3000
+const port = 3300
 // Hidden files (beginning with a full point) are ignored by default, 
 // Other files we do not need to see are listed here
 const excludeFiles = [
@@ -24,7 +24,6 @@ const excludeFiles = [
 
 // Helper file to remove multiple forward slash
 function removeDoubleSlash(stringArr) {
-  console.log({ stringArr })
   return stringArr.replace(/\/+/g, '/')
 }
 
@@ -52,7 +51,6 @@ app.get('/*', (req, res) => {
   const { hostname, originalUrl } = req
   const url = (req.url).replace(/%20/g, ' ')
   if (url.indexOf('.') === -1) {
-    console.log({ originalUrl })
     fs.readdir(path.join(cwd, (originalUrl).replace(/%20/g, ' ')), (err, data) => {
       if (err) {
         console.error(err)
@@ -64,11 +62,10 @@ app.get('/*', (req, res) => {
         .filter(d => excludeFiles.indexOf(d) === -1)
         .reduce((output, current) => {
           const update = output
-          console.log('in files', { originalUrl })
           const entry = {
             text: current,
             // link: `http://${removeDoubleSlash([hostname, ':3000', (originalUrl).replace(/%20/g, ' '), '/', current])}`
-            link: `http://${removeDoubleSlash(`${hostname}:3000${originalUrl}/${current}`)}`
+            link: `http://${removeDoubleSlash(`${hostname}:${port}${originalUrl}/${current}`)}`
 
           }
           if (current.indexOf('.') === -1) {
